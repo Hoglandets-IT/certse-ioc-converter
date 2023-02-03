@@ -17,8 +17,14 @@ jobs:
         with:
           go-version: 1.19
       - name: Try build for Windows, Mac and Linux
+        shell: bash
         with:
-          OS: ${{ matrix.GOOS }}
-          ARCH: ${{ matrix.GOARCH }}
+          GOOS: ${{ matrix.GOOS }}
+          GOARCH: ${{ matrix.GOARCH }}
         run: |
-          GOOS=$OS GOARCH=$ARCHG go build -o ioconv-$OS-$ARCH
+          go build -o ioconv-$OS-$ARCH
+      - name: Show files and testrun linux variant
+        shell: bash
+        run: |
+          ls -la
+          ./iconv-linux-amd64

@@ -68,6 +68,13 @@ func getActionType(indicatorType string) string {
 }
 
 func main() {
+	// Check if filename is provided
+	if len(os.Args) < 2 {
+		fmt.Println("Invalid arguments. Please provide a filename.")
+		fmt.Println("Usage: ioconv.exe <filename>")
+		return
+	}
+
 	// Get filename from first argument
 	filename := os.Args[1]
 
