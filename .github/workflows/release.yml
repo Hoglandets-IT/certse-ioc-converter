@@ -1,0 +1,43 @@
+on:
+  push:
+    branches: ['release-**']
+  pull_request:
+    branches: ['release-**']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        GOOS: ['windows', 'darwin', 'linux']
+        GOARCH: ['amd64', '386', 'arm64', 'arm']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - name: Try build for Windows, Mac and Linux
+        with:
+          OS: ${{ matrix.GOOS }}
+          ARCH: ${{ matrix.GOARCH }}
+        run: |
+          mkdir dist
+          FILEEXT=""
+          if [ $OS = "windows" ]; then
+            FILEEXT=".exe";
+          fi
+          GOOS=$OS GOARCH=$ARCH go build -o dist/certse-ioc-converter-$OS-$ARCH$FILEEXT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          body_path: README.md
+          files: |
+            dist/certse-ioc-converter*
+            README.md
