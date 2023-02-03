@@ -8,28 +8,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      matrix:
-        GOOS: ['windows', 'darwin', 'linux']
-        GOARCH: ['amd64', '386', 'arm64', 'arm']
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Go 1.19
         uses: actions/setup-go@v2
         with:
           go-version: 1.19
-      - name: Try build for Windows, Mac and Linux
+
+      - name: Build for Windows and Linux
         shell: bash
-        env:
-          OS: ${{ matrix.GOOS }}
-          ARCH: ${{ matrix.GOARCH }}
         run: |
           mkdir dist
-          FILEEXT=""
-          if [ $OS = "windows" ]; then
-            FILEEXT=".exe";
-          fi
-          GOOS=$OS GOARCH=$ARCH go build -o dist/certse-ioc-converter-$OS-$ARCH$FILEEXT
+          GOOS=windows GOARCH=amd64 go build -o dist/certse-ioc-converter-win-amd64.exe
+          GOOS=windows GOARCH=arm64 go build -o dist/certse-ioc-converter-win-arm64.exe
+          GOOS=windows GOARCH=arm go build -o dist/certse-ioc-converter-win-arm.exe
+          GOOS=linux GOARCH=amd64 go build -o dist/certse-ioc-converter-linux-amd64
+          GOOS=linux GOARCH=arm64 go build -o dist/certse-ioc-converter-linux-arm64
+          GOOS=linux GOARCH=arm go build -o dist/certse-ioc-converter-linux-arm
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -40,5 +36,10 @@ jobs:
           tag_name: ${{ github.ref }}
           body_path: README.md
           files: |
-            dist/certse-ioc-converter*
+            dist/certse-ioc-converter-win-amd64.exe
+            dist/certse-ioc-converter-win-arm64.exe
+            dist/certse-ioc-converter-win-arm.exe
+            dist/certse-ioc-converter-linux-amd64
+            dist/certse-ioc-converter-linux-arm64
+            dist/certse-ioc-converter-linux-arm
             README.md
